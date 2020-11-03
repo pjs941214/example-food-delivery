@@ -107,13 +107,13 @@
 * MSAEz 로 모델링한 이벤트스토밍 결과:  http://www.msaez.io/#/storming/JCfIVLVOzfPg7DfOPWjEfNsoMa92/share/b3974b4a87da79a7e8333e2729bfe356/-MK7sQ_71ifl_gedWf2O
 
 ### 이벤트 도출
-![image](https://user-images.githubusercontent.com/22365716/97949354-b4e44e00-1dd6-11eb-91df-13ec678f606f.png)
+![image](https://user-images.githubusercontent.com/22365716/97949751-03deb300-1dd8-11eb-8790-6162a3b63b4d.png)
 
 ### 액터, 커맨드 부착하여 읽기 좋게
-![image](https://user-images.githubusercontent.com/22365716/97949435-f83ebc80-1dd6-11eb-8299-94139d91c7a3.png)
+![image](https://user-images.githubusercontent.com/22365716/97949884-5f10a580-1dd8-11eb-9139-0fa5085cfc95.png)
 
 ### 어그리게잇으로 묶기
-![image](https://user-images.githubusercontent.com/487999/79683618-52769680-8266-11ea-9c21-48d6812444ba.png)
+![image](https://user-images.githubusercontent.com/22365716/97950046-ed852700-1dd8-11eb-870b-63caa9dea155.png)
 
     - app의 Order, store 의 주문처리, 결제의 결제이력은 그와 연결된 command 와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 그들 끼리 묶어줌
 
