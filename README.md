@@ -103,29 +103,14 @@
 
 # 분석/설계
 
-
-## AS-IS 조직 (Horizontally-Aligned)
-  ![image](https://user-images.githubusercontent.com/487999/79684144-2a893200-826a-11ea-9a01-79927d3a0107.png)
-
-## TO-BE 조직 (Vertically-Aligned)
-  ![image](https://user-images.githubusercontent.com/487999/79684159-3543c700-826a-11ea-8d5f-a3fc0c4cad87.png)
-
-
 ## Event Storming 결과
-* MSAEz 로 모델링한 이벤트스토밍 결과:  http://msaez.io/#/storming/nZJ2QhwVc4NlVJPbtTkZ8x9jclF2/every/a77281d704710b0c2e6a823b6e6d973a/-M5AV2z--su_i4BfQfeF
-
+* MSAEz 로 모델링한 이벤트스토밍 결과:  http://www.msaez.io/#/storming/JCfIVLVOzfPg7DfOPWjEfNsoMa92/share/b3974b4a87da79a7e8333e2729bfe356/-MK7sQ_71ifl_gedWf2O
 
 ### 이벤트 도출
-![image](https://user-images.githubusercontent.com/487999/79683604-47bc0180-8266-11ea-9212-7e88c9bf9911.png)
-
-### 부적격 이벤트 탈락
-![image](https://user-images.githubusercontent.com/487999/79683612-4b4f8880-8266-11ea-9519-7e084524a462.png)
-
-    - 과정중 도출된 잘못된 도메인 이벤트들을 걸러내는 작업을 수행함
-        - 주문시>메뉴카테고리선택됨, 주문시>메뉴검색됨 :  UI 의 이벤트이지, 업무적인 의미의 이벤트가 아니라서 제외
+![image](https://user-images.githubusercontent.com/22365716/97949354-b4e44e00-1dd6-11eb-91df-13ec678f606f.png)
 
 ### 액터, 커맨드 부착하여 읽기 좋게
-![image](https://user-images.githubusercontent.com/487999/79683614-4ee30f80-8266-11ea-9a50-68cdff2dcc46.png)
+![image](https://user-images.githubusercontent.com/22365716/97949435-f83ebc80-1dd6-11eb-8299-94139d91c7a3.png)
 
 ### 어그리게잇으로 묶기
 ![image](https://user-images.githubusercontent.com/487999/79683618-52769680-8266-11ea-9c21-48d6812444ba.png)
