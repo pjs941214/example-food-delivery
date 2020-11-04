@@ -22,21 +22,22 @@
 
 기능적 요구사항
 1. 접수처에서 수리 접수를 받는다.
-1. 접수처에서 수리처에서 접수된 수리 접수를 취소한다.
+1. 접수처에서 수리 접수를 취소한다.
 1. 접수처에서 수리가 완료된 차량에 대해 결제 요청을 한다.
 1. 수리처에서 접수처에 접수된 수리접수를 받는다.
 1. 수리처에서 접수처에 접수된 수리접수를 거절한다.
 1. 수리처에서 수리한다.
 1. 접수처에서 수리 완료된 접수에 대해 결제 요청을 한다.
+1. 고객이 결제한다.
 
 비기능적 요구사항
 1. 트랜잭션
-    1. 수리가 완료되지 않은 수리접수건에 대해서만 결제가 성립되어야 한다 Sync 호출
+ - 수리가 완료된 수리접수건에 대해서만 결제가 성립되어야 한다 Sync 호출
 1. 장애격리
-    1. 수리처 기능이 수행되지 않더라도 접수은 365일 24시간 받을 수 있어야 한다 Async (event-driven), Eventual Consistency
-    1. 결제시스템이 과중되면 결제를 잠시동안 받지 않고 결제를 잠시후에 하도록 유도한다 Circuit breaker, fallback
+ - 수리처 기능이 수행되지 않더라도 접수은 365일 24시간 받을 수 있어야 한다 Async (event-driven), Eventual Consistency
+ - 결제시스템이 과중되면 결제를 잠시동안 받지 않고 결제를 잠시후에 하도록 유도한다 Circuit breaker, fallback
 1. 성능
-    1. 고객이 접수한 접수상태를 접수처(프론트엔드)에서 확인할 수 있어야 한다 CQRS
+ - 고객이 확인할 수 있는 접수상태 및 수리, 결제 상황을 접수처(프론트엔드)에서 확인할 수 있어야 한다 CQRS
 
 # 분석/설계
 
@@ -44,19 +45,14 @@
 * MSAEz 로 모델링한 이벤트스토밍 결과:  http://www.msaez.io/#/storming/JCfIVLVOzfPg7DfOPWjEfNsoMa92/share/b3974b4a87da79a7e8333e2729bfe356/-MK7sQ_71ifl_gedWf2O
 
 ### 이벤트 도출
-![image](https://user-images.githubusercontent.com/22365716/97949751-03deb300-1dd8-11eb-8790-6162a3b63b4d.png)
 
 ### 액터, 커맨드 부착하여 읽기 좋게
-![image](https://user-images.githubusercontent.com/22365716/97949884-5f10a580-1dd8-11eb-9139-0fa5085cfc95.png)
 
 ### 어그리게잇으로 묶기
-![image](https://user-images.githubusercontent.com/22365716/97950046-ed852700-1dd8-11eb-870b-63caa9dea155.png)
 
-    - app의 Order, store 의 주문처리, 결제의 결제이력은 그와 연결된 command 와 event 들에 의하여 트랜잭션이 유지되어야 하는 단위로 그들 끼리 묶어줌
 
 ### 바운디드 컨텍스트로 묶기
 
-![image](https://user-images.githubusercontent.com/487999/79683625-560a1d80-8266-11ea-9790-40d68a36d95d.png)
 
     - 도메인 서열 분리 
         - Core Domain:  app(front), store : 없어서는 안될 핵심 서비스이며, 연견 Up-time SLA 수준을 99.999% 목표, 배포주기는 app 의 경우 1주일 1회 미만, store 의 경우 1개월 1회 미만
@@ -65,17 +61,10 @@
 
 ### 폴리시 부착 (괄호는 수행주체, 폴리시 부착을 둘째단계에서 해놔도 상관 없음. 전체 연계가 초기에 드러남)
 
-![image](https://user-images.githubusercontent.com/487999/79683633-5aced180-8266-11ea-8f42-c769eb88dfb1.png)
 
 ### 폴리시의 이동과 컨텍스트 매핑 (점선은 Pub/Sub, 실선은 Req/Resp)
 
-![image](https://user-images.githubusercontent.com/487999/79683641-5f938580-8266-11ea-9fdb-4e80ff6642fe.png)
-
 ### 완성된 1차 모형
-
-![image](https://user-images.githubusercontent.com/487999/79683646-63bfa300-8266-11ea-9bc5-c0b650507ac8.png)
-
-    - View Model 추가
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
