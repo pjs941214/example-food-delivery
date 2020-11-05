@@ -51,7 +51,7 @@
 ![image](https://user-images.githubusercontent.com/22365716/98183397-64423180-1f4b-11eb-86c6-2fd6434f676f.png)
 
 ### 어그리게잇으로 묶기
-![image](https://user-images.githubusercontent.com/22365716/98182281-bf265980-1f48-11eb-84b8-ebb495331e4a.png)
+![image](https://user-images.githubusercontent.com/22365716/98183508-9a7fb100-1f4b-11eb-9843-a54d01660bec.png)
 
 ### 바운디드 컨텍스트로 묶기
 ![image](https://user-images.githubusercontent.com/22365716/98182436-19271f00-1f49-11eb-9bd9-7ed7a1958a3e.png)
