@@ -119,28 +119,38 @@
 
 
 # 구현:
-분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트와 리액트으로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
+
+분석/설계 단계에서 도출된 헥사고날 아키텍처에 따라, 각 BC별로 대변되는 마이크로 서비스들을 스프링부트와 자바로 구현하였다. 구현한 각 서비스를 로컬에서 실행하는 방법은 아래와 같다 (각자의 포트넘버는 8081 ~ 808n 이다)
+
 ```
-cd receipt
+cd app
 mvn spring-boot:run
-cd repair
-mvn spring-boot:run
-cd payment
-mvn spring-boot:run
-cd display
-mvn spring-boot:run
-cd car-react
-npm start
+
+cd pay
+mvn spring-boot:run 
+
+cd store
+mvn spring-boot:run  
+
+cd customer
+python policy-handler.py 
+```
+
 ## DDD 의 적용
-- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 pay 마이크로 서비스). 이때 가능한 현업에서 사용하는 언어 (유비쿼터스 랭귀지)를 그대로 사용하려고 노력했다. 하지만, 일부 구현에 있어서 영문이 아닌 경우는 실행이 불가능한 경우가 있기 때문에 계속 사용할 방법은 아닌것 같다. (Maven pom.xml, Kafka의 topic id, FeignClient 의 서비스 id 등은 한글로 식별자를 사용하는 경우 오류가 발생하는 것을 확인하였다)
+
+- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 repair 마이크로 서비스).
+
 ```
 package automechanicsmall;
+
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
 import java.util.List;
+
 @Entity
 @Table(name="Repair")
 public class Repair {
+
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
@@ -148,209 +158,283 @@ public class Repair {
     private String stat;
     private Integer repairAmt;
     private Long receiptId;
-public Long getId() {
+    
+    public Long getId() {
         return id;
     }
+
     public void setId(Long id) {
         this.id = id;
     }
     public String getVehiNo() {
         return vehiNo;
     }
+
     public void setVehiNo(String vehiNo) {
         this.vehiNo = vehiNo;
     }
     public String getStat() {
         return stat;
     }
+
     public void setStat(String stat) {
         this.stat = stat;
     }
+
     public Integer getRepairAmt() {
         return repairAmt;
     }
+
     public void setRepairAmt(Integer repairAmt) {
         this.repairAmt = repairAmt;
     }
+
     public Long getReceiptId() {
         return receiptId;
     }
+
     public void setReceiptId(Long receiptId) {
         this.receiptId = receiptId;
     }
+
 }
+
 ```
 - Entity Pattern 과 Repository Pattern 을 적용하여 JPA 를 통하여 다양한 데이터소스 유형 (RDB or NoSQL) 에 대한 별도의 처리가 없도록 데이터 접근 어댑터를 자동 생성하기 위하여 Spring Data REST 의 RestRepository 를 적용하였다
 ```
-package automechanicsmall;
+package fooddelivery;
+
 import org.springframework.data.repository.PagingAndSortingRepository;
-import java.util.List;
-public interface RepairRepository extends PagingAndSortingRepository<Repair, Long>{
+
+public interface 결제이력Repository extends PagingAndSortingRepository<결제이력, Long>{
 }
 ```
 - 적용 후 REST API 의 테스트
 ```
-# 접수 생성 & 수리 요청
-http POST http://localhost:8088/receipts vehiNo=12가1234 stat=REQUESTREPAIR
-# 수리 완료
-http POST http://localhost:8088/receipts vehiNo=12가1234 stat=REQUESTREPAIR
-# 비용 지불
-http PATCH http://localhost:8088/receipts/1 stat=PAYMENTREQUESTED payAmt=3000
-# 각 어그리게이트 확인 (접수, 수리, 비용지불)
-http http://localhost:8088/receipts/1
-http http://localhost:8088/repairs/1
-http http://localhost:8088/payments/1
+# app 서비스의 주문처리
+http localhost:8081/orders item="통닭"
+
+# store 서비스의 배달처리
+http localhost:8083/주문처리s orderId=1
+
+# 주문 상태 확인
+http localhost:8081/orders/1
+
 ```
+
+
 ## 폴리글랏 퍼시스턴스
-마이크로서비스의 폴리그랏 퍼시스턴스의 예로 데이터의 빈번한 입출력을 사용하는 부분은 Display(View)의 저장소는 Mongo DB(NO SQL)를 사용하고 그 외의 업무 도메인인 접수(Receipt), 수리(Repair), 결재(Payment)는 Maria DB(RDB)를 사용하였다.
-application.yml의 간단한 설정을 통해 설정이 가능하다.
+
+display는 Mongo DB를 사용하기로 하였다. receipt, repair, payment는 Maria DB를 사용하였다.
+
 ```
-application.xml (receipt service)
-spring:
-  profiles: default
-  jpa:
-    database-platform: org.hibernate.dialect.MariaDB53Dialect
-    hibernate:
-      ddl-auto: create #create update none
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
-  datasource:
-    url: jdbc:mariadb://car-mariadb.mariadb.database.azure.com:3306/receipt?useSSL=true
-    username: caradmin
-    password: Admin1234!
-    #url: jdbc:mysql://localhost:3306/security?serverTimezone=Asia/Seoul
-    #username: cos
-    #password: cos1234
-    driverClassName: org.mariadb.jdbc.Driver
-application.xml (display service)
-spring:
-  profiles: default
+# Order.java
+
+package fooddelivery;
+
+@Document
+public class Order {
+
+    private String id; // mongo db 적용시엔 id 는 고정값으로 key가 자동 발급되는 필드기 때문에 @Id 나 @GeneratedValue 를 주지 않아도 된다.
+    private String item;
+    private Integer 수량;
+
+}
+
+
+# 주문Repository.java
+package fooddelivery;
+
+public interface 주문Repository extends JpaRepository<Order, UUID>{
+}
+
+# application.yml
+
   data:
     mongodb:
-      uri: mongodb://52.141.62.76:27017/display
-      username: myUser
-      password: myUserIsCarrey
-  jpa:
-    properties:
-      hibernate:
-        show_sql: true
-        format_sql: true
+      host: mongodb.default.svc.cluster.local
+    database: mongo-example
+
 ```
+
+## 폴리글랏 프로그래밍
+
+고객관리 서비스(customer)의 시나리오인 주문상태, 배달상태 변경에 따라 고객에게 카톡메시지 보내는 기능의 구현 파트는 해당 팀이 python 을 이용하여 구현하기로 하였다. 해당 파이썬 구현체는 각 이벤트를 수신하여 처리하는 Kafka consumer 로 구현되었고 코드는 다음과 같다:
+```
+from flask import Flask
+from redis import Redis, RedisError
+from kafka import KafkaConsumer
+import os
+import socket
+
+
+# To consume latest messages and auto-commit offsets
+consumer = KafkaConsumer('fooddelivery',
+                         group_id='',
+                         bootstrap_servers=['localhost:9092'])
+for message in consumer:
+    print ("%s:%d:%d: key=%s value=%s" % (message.topic, message.partition,
+                                          message.offset, message.key,
+                                          message.value))
+
+    # 카톡호출 API
+```
+
+파이선 애플리케이션을 컴파일하고 실행하기 위한 도커파일은 아래와 같다 (운영단계에서 할일인가? 아니다 여기 까지가 개발자가 할일이다. Immutable Image):
+```
+FROM python:2.7-slim
+WORKDIR /app
+ADD . /app
+RUN pip install --trusted-host pypi.python.org -r requirements.txt
+ENV NAME World
+EXPOSE 8090
+CMD ["python", "policy-handler.py"]
+```
+
+
 ## 동기식 호출 과 Fallback 처리
-분석단계에서의 조건 중 하나로 접수(repair)->결제(payment) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다.
-- 결제서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현
+
+분석단계에서의 조건 중 하나로 주문(app)->결제(pay) 간의 호출은 동기식 일관성을 유지하는 트랜잭션으로 처리하기로 하였다. 호출 프로토콜은 이미 앞서 Rest Repository 에 의해 노출되어있는 REST 서비스를 FeignClient 를 이용하여 호출하도록 한다. 
+
+- 결제서비스를 호출하기 위하여 Stub과 (FeignClient) 를 이용하여 Service 대행 인터페이스 (Proxy) 를 구현 
+
 ```
-# (receipt) PaymentService.java
-package automechanicsmall.external;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.*;
-import java.util.Date;
-@FeignClient(name="payment", url="${api.payment.url}")
-public interface PaymentService {
-    @RequestMapping(method= RequestMethod.POST, path="/payments")
-    void pay(@RequestBody Payment payment);
+# (app) 결제이력Service.java
+
+package fooddelivery.external;
+
+@FeignClient(name="pay", url="http://localhost:8082")//, fallback = 결제이력ServiceFallback.class)
+public interface 결제이력Service {
+
+    @RequestMapping(method= RequestMethod.POST, path="/결제이력s")
+    public void 결제(@RequestBody 결제이력 pay);
+
 }
-- 결재 요청을 받은 직후(@PostPersist) 정상적인 서비스일 경우 pub/sub 방식으로 완료 회신
 ```
-# Payment.java (Entity)
+
+- 주문을 받은 직후(@PostPersist) 결제를 요청하도록 처리
+```
+# Order.java (Entity)
+
     @PostPersist
     public void onPostPersist(){
-        System.out.println("###payment.java - PrePersist###");
-        System.out.println(this.getReceiptId());
-        PaymentApproved paymentApproved = new PaymentApproved();
-        BeanUtils.copyProperties(this, paymentApproved);
-        paymentApproved.publishAfterCommit();
+
+        fooddelivery.external.결제이력 pay = new fooddelivery.external.결제이력();
+        pay.setOrderId(getOrderId());
+        
+        Application.applicationContext.getBean(fooddelivery.external.결제이력Service.class)
+                .결제(pay);
     }
 ```
-- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 결재요청을 못받는다는 것을 확인:
+
+- 동기식 호출에서는 호출 시간에 따른 타임 커플링이 발생하며, 결제 시스템이 장애가 나면 주문도 못받는다는 것을 확인:
+
+
 ```
 # 결제 (pay) 서비스를 잠시 내려놓음 (ctrl+c)
-#지불 요청
-http PATCH http://localhost:8088/receipts/1 stat=PAYMENTREQUESTED   #Fail
-http PATCH http://localhost:8088/receipts/2 stat=PAYMENTREQUESTED   #Fail
-#payment 재기동
-cd payment
-mvn spring-boot:run
+
 #주문처리
-http PATCH http://localhost:8088/receipts/1 stat=PAYMENTREQUESTED   #Success
-http PATCH http://localhost:8088/receipts/1 stat=PAYMENTREQUESTED   #Success
+http localhost:8081/orders item=통닭 storeId=1   #Fail
+http localhost:8081/orders item=피자 storeId=2   #Fail
+
+#결제서비스 재기동
+cd 결제
+mvn spring-boot:run
+
+#주문처리
+http localhost:8081/orders item=통닭 storeId=1   #Success
+http localhost:8081/orders item=피자 storeId=2   #Success
 ```
+
 - 또한 과도한 요청시에 서비스 장애가 도미노 처럼 벌어질 수 있다. (서킷브레이커, 폴백 처리는 운영단계에서 설명한다.)
-## 비동기식 호출 / 장애격리 / 최종 (Eventual) 일관성 테스트
-수리 프로세스에 문제가 있더라도 접수는 계속 받을 수 있도록 비동기식 호출하여 처리 한다. (kafka)
-추후에 수리 프로세스가 복구 완료되면 접수에서 정상적으로 수리 요청 되었다고 이벤트를 수신한다. (Polish Hanler 처리 및 kafka로 접수에 수리 요청 상태 변경 회신)
+
+
+
+
+## 비동기식 호출 / 시간적 디커플링 / 장애격리 / 최종 (Eventual) 일관성 테스트
+
+
+결제가 이루어진 후에 상점시스템으로 이를 알려주는 행위는 동기식이 아니라 비 동기식으로 처리하여 상점 시스템의 처리를 위하여 결제주문이 블로킹 되지 않아도록 처리한다.
+ 
+- 이를 위하여 결제이력에 기록을 남긴 후에 곧바로 결제승인이 되었다는 도메인 이벤트를 카프카로 송출한다(Publish)
+ 
 ```
-<receipt.java>
-@PostPersist
-public void onPostPersist() throws Exception {
-    System.out.println("###Reservaton.java - onPrePersist###");
-    try {
-        // 수리 요청
-        if(this.stat.equals("REQUESTREPAIR")) {
-            Received received = new Received();
-            BeanUtils.copyProperties(this, received);
-            received.setReceiptId(this.getId());
-            received.publishAfterCommit();
-        }else{
-            //Exception exception = new Exception();
-            //throw exception; //예외 발생
-        }
-    }catch(Exception e) {
-        throw new Exception("요청할 수 없는 상태 입니다.");
-        //return;
-    }finally {
+package fooddelivery;
+
+@Entity
+@Table(name="결제이력_table")
+public class 결제이력 {
+
+ ...
+    @PrePersist
+    public void onPrePersist(){
+        결제승인됨 결제승인됨 = new 결제승인됨();
+        BeanUtils.copyProperties(this, 결제승인됨);
+        결제승인됨.publish();
     }
+
 }
-<Repair - PolicyHandler>
+```
+- 상점 서비스에서는 결제승인 이벤트에 대해서 이를 수신하여 자신의 정책을 처리하도록 PolicyHandler 를 구현한다:
+
+```
+package fooddelivery;
+
+...
+
 @Service
 public class PolicyHandler{
-    @Autowired
-    RepairRepository repairRepository;
+
     @StreamListener(KafkaProcessor.INPUT)
-    public void onStringEventListener(@Payload String eventString){
-    }
-    @StreamListener(KafkaProcessor.INPUT)
-    public void wheneverReceived_RequestRepair(@Payload Received received){
-        if(received.isMe()){
-            System.out.println("##### listener RequestRepair : " + received.toJson());
-            Repair repair = new Repair();
-            repair.setReceiptId(received.getReceiptId());
-            repair.setVehiNo(received.getVehiNo());
-            repair.setStat("REQUESTREPAIR");
-            repairRepository.save(repair);
+    public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
+
+        if(결제승인됨.isMe()){
+            System.out.println("##### listener 주문정보받음 : " + 결제승인됨.toJson());
+            // 주문 정보를 받았으니, 요리를 슬슬 시작해야지..
+            
         }
     }
+
 }
-<Repair.java>
-@PostPersist
-public void onPostPersist(){
-    System.out.println("###Repair.java - onPostPersist###");
-    // 수리 요청
-    if(this.getStat().equals("REQUESTREPAIR")) {
-        RepairReceived repairReceived = new RepairReceived();
-        BeanUtils.copyProperties(this, repairReceived);
-        System.out.println("####"+this.getReceiptId()+"####");
-        repairReceived.publishAfterCommit();
-    }
-}
+
 ```
-수리 시스템은 접수/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 수리시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
+실제 구현을 하자면, 카톡 등으로 점주는 노티를 받고, 요리를 마친후, 주문 상태를 UI에 입력할테니, 우선 주문정보를 DB에 받아놓은 후, 이후 처리는 해당 Aggregate 내에서 하면 되겠다.:
+  
 ```
-# 수리 서비스 (store) 를 잠시 내려놓음 (ctrl+c)
-#처리
-http POST http://localhost:8088/receipts vehiNo=1234 stat=REQUESTREPAIR   #Success
-http POST http://localhost:8088/receipts vehiNo=4567 stat=REQUESTREPAIR   #Success
+  @Autowired 주문관리Repository 주문관리Repository;
+  
+  @StreamListener(KafkaProcessor.INPUT)
+  public void whenever결제승인됨_주문정보받음(@Payload 결제승인됨 결제승인됨){
+
+      if(결제승인됨.isMe()){
+          카톡전송(" 주문이 왔어요! : " + 결제승인됨.toString(), 주문.getStoreId());
+
+          주문관리 주문 = new 주문관리();
+          주문.setId(결제승인됨.getOrderId());
+          주문관리Repository.save(주문);
+      }
+  }
+
+```
+
+상점 시스템은 주문/결제와 완전히 분리되어있으며, 이벤트 수신에 따라 처리되기 때문에, 상점시스템이 유지보수로 인해 잠시 내려간 상태라도 주문을 받는데 문제가 없다:
+```
+# 상점 서비스 (store) 를 잠시 내려놓음 (ctrl+c)
+
+#주문처리
+http localhost:8081/orders item=통닭 storeId=1   #Success
+http localhost:8081/orders item=피자 storeId=2   #Success
+
 #주문상태 확인
-http GET http://localhost:8088/receipts     # 접수 완료로 변경되지 않음
-http GET http://localhost:8088/repairs      # 수리 정보 없음
-#수리 서비스 기동
-cd repair
+http localhost:8080/orders     # 주문상태 안바뀜 확인
+
+#상점 서비스 기동
+cd 상점
 mvn spring-boot:run
-#수리상태 확인
-http GET http://localhost:8088/receipts     # 접수 완료로 변경
-http GET http://localhost:8088/repairs      # 수리 정보 생성
+
+#주문상태 확인
+http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 확인
+```
 
 
 # 운영
@@ -543,38 +627,28 @@ Shortest transaction:	        0.00
 앞서 CB 는 시스템을 안정되게 운영할 수 있게 해줬지만 사용자의 요청을 100% 받아들여주지 못했기 때문에 이에 대한 보완책으로 자동화된 확장 기능을 적용하고자 한다. 
 
 
-- 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 15프로를 넘어서면 replica 를 10개까지 늘려준다:
+- 결제서비스에 대한 replica 를 동적으로 늘려주도록 HPA 를 설정한다. 설정은 CPU 사용량이 90프로를 넘어서면 replica 를 10개까지 늘려준다:
 ```
-kubectl autoscale deploy pay --min=1 --max=10 --cpu-percent=15
+kubectl autoscale deploy payment --min=1 --max=10 --cpu-percent=90
 ```
 - CB 에서 했던 방식대로 워크로드를 2분 동안 걸어준다.
 ```
-siege -c100 -t120S -r10 --content-type "application/json" 'http://localhost:8081/orders POST {"item": "chicken"}'
+siege -c100 -t120S -r10 'http://20.196.136.26:8080/payments GET
 ```
 - 오토스케일이 어떻게 되고 있는지 모니터링을 걸어둔다:
 ```
 kubectl get deploy pay -w
 ```
-- 어느정도 시간이 흐른 후 (약 30초) 스케일 아웃이 벌어지는 것을 확인할 수 있다:
+- 어느정도 시간이 흐른 후 스케일 아웃이 벌어지는 것을 확인할 수 있다:
 ```
-NAME    DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-pay     1         1         1            1           17s
-pay     1         2         1            1           45s
-pay     1         4         1            1           1m
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+payment   1/1     1            1           45h
+payment   1/2     1            1           45h
+payment   1/2     1            1           45h
+payment   1/2     1            1           45h
+payment   1/2     2            1           45h
 :
 ```
-- siege 의 로그를 보아도 전체적인 성공률이 높아진 것을 확인 할 수 있다. 
-```
-Transactions:		        5078 hits
-Availability:		       92.45 %
-Elapsed time:		       120 secs
-Data transferred:	        0.34 MB
-Response time:		        5.60 secs
-Transaction rate:	       17.15 trans/sec
-Throughput:		        0.01 MB/sec
-Concurrency:		       96.02
-```
-
 
 ## 무정지 재배포
 
