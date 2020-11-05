@@ -45,14 +45,16 @@
 * MSAEz 로 모델링한 이벤트스토밍 결과:  http://www.msaez.io/#/storming/JCfIVLVOzfPg7DfOPWjEfNsoMa92/share/b3974b4a87da79a7e8333e2729bfe356/-MK7sQ_71ifl_gedWf2O
 
 ### 이벤트 도출
+![image](https://user-images.githubusercontent.com/22365716/98182203-8a1a0700-1f48-11eb-964e-636005c3aa9c.png)
 
 ### 액터, 커맨드 부착하여 읽기 좋게
+![image](https://user-images.githubusercontent.com/22365716/98182398-ff85d780-1f48-11eb-88b4-262e4c70b2ab.png)
 
 ### 어그리게잇으로 묶기
-
+![image](https://user-images.githubusercontent.com/22365716/98182281-bf265980-1f48-11eb-84b8-ebb495331e4a.png)
 
 ### 바운디드 컨텍스트로 묶기
-
+![image](https://user-images.githubusercontent.com/22365716/98182436-19271f00-1f49-11eb-9bd9-7ed7a1958a3e.png)
 
     - 도메인 서열 분리 
         - Core Domain:  app(front), store : 없어서는 안될 핵심 서비스이며, 연견 Up-time SLA 수준을 99.999% 목표, 배포주기는 app 의 경우 1주일 1회 미만, store 의 경우 1개월 1회 미만
