@@ -442,7 +442,8 @@ http localhost:8080/orders     # 모든 주문의 상태가 "배송됨"으로 �
 ## CI/CD 설정
 
 
-각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 azure를 사용하였으며 명령어기반으로 적용되었습니다.
+각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 azure를 사용하였으며 CI/CD는 아래와 같습니다. 
+
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
