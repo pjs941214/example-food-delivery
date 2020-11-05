@@ -138,25 +138,27 @@ python policy-handler.py
 
 ## DDD 의 적용
 
-- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 pay 마이크로 서비스). 이때 가능한 현업에서 사용하는 언어 (유비쿼터스 랭귀지)를 그대로 사용하려고 노력했다. 하지만, 일부 구현에 있어서 영문이 아닌 경우는 실행이 불가능한 경우가 있기 때문에 계속 사용할 방법은 아닌것 같다. (Maven pom.xml, Kafka의 topic id, FeignClient 의 서비스 id 등은 한글로 식별자를 사용하는 경우 오류가 발생하는 것을 확인하였다)
+- 각 서비스내에 도출된 핵심 Aggregate Root 객체를 Entity 로 선언하였다: (예시는 repair 마이크로 서비스).
 
 ```
-package fooddelivery;
+package automechanicsmall;
 
 import javax.persistence.*;
 import org.springframework.beans.BeanUtils;
 import java.util.List;
 
 @Entity
-@Table(name="결제이력_table")
-public class 결제이력 {
+@Table(name="Repair")
+public class Repair {
 
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Long id;
-    private String orderId;
-    private Double 금액;
-
+    private String vehiNo;
+    private String stat;
+    private Integer repairAmt;
+    private Long receiptId;
+    
     public Long getId() {
         return id;
     }
@@ -164,19 +166,35 @@ public class 결제이력 {
     public void setId(Long id) {
         this.id = id;
     }
-    public String getOrderId() {
-        return orderId;
+    public String getVehiNo() {
+        return vehiNo;
     }
 
-    public void setOrderId(String orderId) {
-        this.orderId = orderId;
+    public void setVehiNo(String vehiNo) {
+        this.vehiNo = vehiNo;
     }
-    public Double get금액() {
-        return 금액;
+    public String getStat() {
+        return stat;
     }
 
-    public void set금액(Double 금액) {
-        this.금액 = 금액;
+    public void setStat(String stat) {
+        this.stat = stat;
+    }
+
+    public Integer getRepairAmt() {
+        return repairAmt;
+    }
+
+    public void setRepairAmt(Integer repairAmt) {
+        this.repairAmt = repairAmt;
+    }
+
+    public Long getReceiptId() {
+        return receiptId;
+    }
+
+    public void setReceiptId(Long receiptId) {
+        this.receiptId = receiptId;
     }
 
 }
@@ -207,7 +225,7 @@ http localhost:8081/orders/1
 
 ## 폴리글랏 퍼시스턴스
 
-앱프런트 (app) 는 서비스 특성상 많은 사용자의 유입과 상품 정보의 다양한 콘텐츠를 저장해야 하는 특징으로 인해 RDB 보다는 Document DB / NoSQL 계열의 데이터베이스인 Mongo DB 를 사용하기로 하였다. 이를 위해 order 의 선언에는 @Entity 가 아닌 @Document 로 마킹되었으며, 별다른 작업없이 기존의 Entity Pattern 과 Repository Pattern 적용과 데이터베이스 제품의 설정 (application.yml) 만으로 MongoDB 에 부착시켰다
+display는 Mongo DB를 사용하기로 하였다. receipt, repair, payment는 Maria DB를 사용하였다.
 
 ```
 # Order.java
