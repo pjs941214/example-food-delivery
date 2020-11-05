@@ -81,10 +81,13 @@
     - 접수처에서 수리 완료된 접수에 대해 결제 요청을 한다. (ok)
     - 고객이 결제한다. (ok)
 
-![image](https://user-images.githubusercontent.com/487999/79684170-47256a00-826a-11ea-9777-e16fafff519a.png)
+![image](https://user-images.githubusercontent.com/46660236/98188993-6a3e0f80-1f57-11eb-90aa-053abdad6703.png)
     
     - 접수처에서 수리 접수를 취소한다. (ok)
     - 수리처에서 접수처에서 취소된 수리를 취소한다. (ok)
+
+![image](https://user-images.githubusercontent.com/46660236/98188999-6c07d300-1f57-11eb-91e3-73521fa58498.png)
+
     - 수리처에서 접수처에 접수된 수리접수를 거절한다. (ok)
 
 
