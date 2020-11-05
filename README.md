@@ -73,7 +73,7 @@
 
 ### 1차 완성본에 대한 기능적/비기능적 요구사항을 커버하는지 검증
 
-![image](https://user-images.githubusercontent.com/487999/79684167-3ecd2f00-826a-11ea-806a-957362d197e3.png)
+![image](https://user-images.githubusercontent.com/46660236/98188908-3cf16180-1f57-11eb-80ef-86588ece7db9.png)
 
     - 접수처에서 수리 접수를 받는다. (ok)
     - 수리처에서 접수처에 접수된 수리접수를 받는다. (ok)
