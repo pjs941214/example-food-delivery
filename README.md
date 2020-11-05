@@ -357,9 +357,9 @@ http GET http://localhost:8088/repairs      # 수리 정보 생성
 
 각 구현체들은 각자의 source repository 에 구성되었고, 사용한 CI/CD 플랫폼은 azure를 사용하였으며 CI/CD는 아래와 같습니다.
 
-![image](https://user-images.githubusercontent.com/46660236/98197489-3cae9180-1f6a-11eb-9793-7d9099238007.png)
-
 ![image](https://user-images.githubusercontent.com/46660236/98197484-3ae4ce00-1f6a-11eb-9085-10c4ce540ac1.png)
+
+![image](https://user-images.githubusercontent.com/46660236/98197489-3cae9180-1f6a-11eb-9793-7d9099238007.png)
 
 
 ## 동기식 호출 / 서킷 브레이킹 / 장애격리
