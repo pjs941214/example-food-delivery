@@ -48,7 +48,7 @@
 ![image](https://user-images.githubusercontent.com/22365716/98182203-8a1a0700-1f48-11eb-964e-636005c3aa9c.png)
 
 ### 액터, 커맨드 부착하여 읽기 좋게
-![image](https://user-images.githubusercontent.com/22365716/98182398-ff85d780-1f48-11eb-88b4-262e4c70b2ab.png)
+![image](https://user-images.githubusercontent.com/22365716/98183397-64423180-1f4b-11eb-86c6-2fd6434f676f.png)
 
 ### 어그리게잇으로 묶기
 ![image](https://user-images.githubusercontent.com/22365716/98182281-bf265980-1f48-11eb-84b8-ebb495331e4a.png)
