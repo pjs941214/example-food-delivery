@@ -527,21 +527,120 @@ public class PolicyHandler{
 ```
 ## CQRS
 ```
-
+![image](https://user-images.githubusercontent.com/22365716/98319143-72638100-2023-11eb-9874-8ff8ff49ac56.png)
+ - repair에서 도움 요청을 하였을 때(이벤트), mongoDB에 저장한다.
+ - 외주업체에서는 뷰를 통해 도움현황을 조회할 수 있다.
 ```
 ## Correlation
 ## Req/Resp
 ```
-
+curl -X POST localhost:8088/repairs -d '{"stat":"HELPREQUESTED"}' -H 'Content-Type':'application/json'                                                           
+{
+  "vehiNo" : null,
+  "stat" : "HELPREQUESTED",
+  "repairAmt" : null,
+  "receiptId" : null,
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8082/repairs/1"
+    },
+    "repair" : {
+      "href" : "http://localhost:8082/repairs/1"
+    }
+  }
+}                                                                                                                                                                 curl -X GET localhost:8088/helpers                                                                                                                               
+{
+  "_embedded" : {
+    "helpers" : [ {
+      "repairId" : 1,
+      "name" : null,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8085/helpers/1"
+        },
+        "helper" : {
+          "href" : "http://localhost:8085/helpers/1"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8085/helpers{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8085/profile/helpers"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 1,
+    "totalPages" : 1,
+    "number" : 0
+  }
+}                                                                                                                                                                 curl -X DELETE localhost:8088/repairs/1                                                                                                                           
+curl -X GET localhost:8088/helpers                                                                                                                               
+{
+  "_embedded" : {
+    "helpers" : [ ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8085/helpers{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8085/profile/helpers"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 0,
+    "totalPages" : 0,
+    "number" : 0
+  }
+}                                                                                                                                                                 
 ```
 ## Gateway
+```
+spring:
+  profiles: docker
+  cloud:
+    gateway:
+      routes:
+        - id: receipt
+          uri: http://receipt:8080
+          predicates:
+            - Path=/receipts/** 
+        - id: repair
+          uri: http://repair:8080
+          predicates:
+            - Path=/repairs/** 
+        - id: payment
+          uri: http://payment:8080
+          predicates:
+            - Path=/payments/** 
+        - id: display
+          uri: http://display:8080
+          predicates:
+            - Path= /displays/**
+        - id: helper
+          uri: http://helper:8080
+          predicates:
+            - Path= /helpers/**
+```
 ## Deploy/ Pipeline
 ## Circuit Breaker
 ## Autoscale (HPA)
 ## Zero-downtime deploy (Readiness Probe)
 ## Config Map/ Persistence Volume
+```
+![image](https://user-images.githubusercontent.com/22365716/98320156-b061a480-2025-11eb-94a2-dbeaa910aed6.png)
+![image](https://user-images.githubusercontent.com/22365716/98320671-b906aa80-2026-11eb-99c5-d95027f9e052.png)
+```
 ## Polyglot
 ```
-
+![image](https://user-images.githubusercontent.com/22365716/98320156-b061a480-2025-11eb-94a2-dbeaa910aed6.png)
 ```
 ## Self-healing (Liveness Probe)
