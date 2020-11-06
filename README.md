@@ -482,3 +482,66 @@ Concurrency:		       96.02
 ```
 
 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
+
+# 신규 서비스 추가
+
+## 외주팀의 추가
+    - KPI: 외주팀을 추가함으로서 수리 퀄리티 상승
+    - 구현계획 마이크로 서비스: 수리처에 수리 도움을 제공할 예정
+
+## 이벤트 스토밍 
+![image](https://user-images.githubusercontent.com/22365716/98314246-ea787980-2018-11eb-9c94-cdeddde09e8c.png)
+
+
+## 헥사고날 아키텍처 변화 
+![image](https://user-images.githubusercontent.com/22365716/98314009-7f2ea780-2018-11eb-8963-6eb04c8b09cc.png)
+
+## Saga
+```
+@Service
+public class PolicyHandler{
+
+    @Autowired
+    RepairRepository repairRepository;
+
+    @StreamListener(KafkaProcessor.INPUT)
+    public void onStringEventListener(@Payload String eventString){
+
+    }
+
+    // 예약 입력
+    @StreamListener(KafkaProcessor.INPUT)
+    public void wheneverReceived_RequestRepair(@Payload Received received){
+
+        if(received.isMe()){
+            System.out.println("##### listener RequestRepair : " + received.toJson());
+
+            Repair repair = new Repair();
+            repair.setReceiptId(received.getReceiptId());
+            repair.setVehiNo(received.getVehiNo());
+            repair.setStat("REQUESTREPAIR");
+            repairRepository.save(repair);
+        }
+    }
+}
+```
+## CQRS
+```
+
+```
+## Correlation
+## Req/Resp
+```
+
+```
+## Gateway
+## Deploy/ Pipeline
+## Circuit Breaker
+## Autoscale (HPA)
+## Zero-downtime deploy (Readiness Probe)
+## Config Map/ Persistence Volume
+## Polyglot
+```
+
+```
+## Self-healing (Liveness Probe)
