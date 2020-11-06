@@ -494,7 +494,7 @@ Concurrency:		       96.02
 
 
 ## 헥사고날 아키텍처 변화 
-![image](https://user-images.githubusercontent.com/22365716/98314009-7f2ea780-2018-11eb-8963-6eb04c8b09cc.png)
+![image](https://user-images.githubusercontent.com/22365716/98321007-6da0cc00-2027-11eb-9a55-ff7a32229d44.png)
 
 ## Saga
 ```
