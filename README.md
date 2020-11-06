@@ -726,6 +726,35 @@ spring:
 ```
 ## Deploy/ Pipeline
 ## Circuit Breaker
+ - Destination rule 를 설정: http connection pool 이 1개가 차면 연결을 끊는다. 5xx Error 가 5번 연속적으로 발생 시 해당 서비스로의 연결을 5분 동안 끊는다.
+```
+admin19@Azure:~$ kubectl -n car get destinationrule repair-dr -o yaml
+apiVersion: networking.istio.io/v1beta1
+kind: DestinationRule
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.istio.io/v1beta1","kind":"DestinationRule","metadata":{"annotations":{},"name":"repair-dr","namespace":"car"},"spec":{"host":"repair","trafficPolicy":{"connectionPool":{"http":{"http1MaxPendingRequests":1,"maxRequestsPerConnection":1}},"outlierDetection":{"baseEjectionTime":"5m","consecutive5xxErrors":1,"interval":"5s","maxEjectionPercent":100}}}}
+  creationTimestamp: "2020-11-06T05:02:12Z"
+  generation: 1
+  name: repair-dr
+  namespace: car
+  resourceVersion: "143648"
+  selfLink: /apis/networking.istio.io/v1beta1/namespaces/car/destinationrules/repair-dr
+  uid: ea0a3b6e-45ea-4a2d-83be-28f0ebf7e763
+spec:
+  host: repair
+  trafficPolicy:
+    connectionPool:
+      http:
+        http1MaxPendingRequests: 1
+        maxRequestsPerConnection: 1
+    outlierDetection:
+      baseEjectionTime: 5m
+      consecutive5xxErrors: 1
+      interval: 5s
+      maxEjectionPercent: 100
+```
 ## Autoscale (HPA)
 ```
 resources:
