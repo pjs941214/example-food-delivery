@@ -525,6 +525,8 @@ public class PolicyHandler{
     }
 }
 ```
+![image](https://user-images.githubusercontent.com/22365716/98321156-b35d9480-2027-11eb-8b10-f9a588b48bda.png)
+
 ## CQRS
 ```
 ![image](https://user-images.githubusercontent.com/22365716/98319143-72638100-2023-11eb-9874-8ff8ff49ac56.png)
