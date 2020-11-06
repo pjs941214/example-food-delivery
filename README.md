@@ -725,6 +725,8 @@ spring:
             - Path= /helpers/**
 ```
 ## Deploy/ Pipeline
+```
+```
 ## Circuit Breaker
  - Destination rule 를 설정: http connection pool 이 1개가 차면 연결을 끊는다. 5xx Error 가 5번 연속적으로 발생 시 해당 서비스로의 연결을 5분 동안 끊는다.
 ```
@@ -754,6 +756,132 @@ spec:
       consecutive5xxErrors: 1
       interval: 5s
       maxEjectionPercent: 100
+
+# destinationrule 적용 전
+
+siege -c20 -t2S -v --content-type "application/json" '52.226.169.77:8080/repairs'
+** SIEGE 4.0.4
+** Preparing 20 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+...
+...
+...
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.42 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.43 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.42 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.43 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+
+Lifting the server siege...
+Transactions:		          80 hits
+Availability:		      100.00 %
+Elapsed time:		        1.79 secs
+Data transferred:	        0.50 MB
+Response time:		        0.42 secs
+Transaction rate:	       44.69 trans/sec
+Throughput:		        0.28 MB/sec
+Concurrency:		       18.78
+Successful transactions:          80
+Failed transactions:	           0
+Longest transaction:	        0.52
+Shortest transaction:	        0.37
+
+# destinationrule 적용
+kubectl -n car get destinationrule
+NAME        HOST     AGE
+repair-dr   repair   29s
+
+siege -c20 -t2S -v --content-type "application/json" '52.226.169.77:8080/repairs'
+** SIEGE 4.0.4
+** Preparing 20 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 503     0.36 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.36 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.43 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.43 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.43 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.42 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.42 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.43 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.44 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 503     0.36 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.36 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.39 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 503     0.37 secs:      81 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.42 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.40 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.43 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.44 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.44 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:    6515 bytes ==> GET  /repairs
+HTTP/1.1 200     0.42 secs:    6515 bytes ==> GET  /repairs
+
+Lifting the server siege...
+Transactions:		          37 hits
+Availability:		       61.67 %
+Elapsed time:		        1.37 secs
+Data transferred:	        0.23 MB
+Response time:		        0.64 secs
+Transaction rate:	       27.01 trans/sec
+Throughput:		        0.17 MB/sec
+Concurrency:		       17.21
+Successful transactions:          37
+Failed transactions:	          23
+Longest transaction:	        0.44
+Shortest transaction:	        0.36
+
 ```
 ## Autoscale (HPA)
 ```
