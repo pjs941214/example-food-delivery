@@ -535,6 +535,97 @@ public class PolicyHandler{
  - 외주업체에서는 뷰를 통해 도움현황을 조회할 수 있다.
 ```
 ## Correlation
+```
+curl -X POST localhost:8088/repairs -d '{"stat":"temp"}' -H 'Content-Type':'application/json'                                                                     {
+  "vehiNo" : null,
+  "stat" : "temp",
+  "repairAmt" : null,
+  "receiptId" : null,
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8082/repairs/1"
+    },
+    "repair" : {
+      "href" : "http://localhost:8082/repairs/1"
+    }
+  }
+}                                                                                                                                                                 curl -X GET localhost:8088/helpers
+{
+  "_embedded" : {
+    "helpers" : [ ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8085/helpers{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8085/profile/helpers"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 0,
+    "totalPages" : 0,
+    "number" : 0
+  }
+}
+curl -X PUT localhost:8088/repairs/1 -d '{"stat":"HELPREQUESTED"}' -H 'Content-Type':'application/json'                                                           {
+  "vehiNo" : null,
+  "stat" : "HELPREQUESTED",
+  "repairAmt" : null,
+  "receiptId" : null,
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8082/repairs/1"
+    },
+    "repair" : {
+      "href" : "http://localhost:8082/repairs/1"
+    }
+  }
+}                                                                                                                                                                 curl -X GET localhost:8088/helpers                                                                                                                               {
+  "_embedded" : {
+    "helpers" : [ {
+      "repairId" : 1,
+      "name" : null,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8085/helpers/1"
+        },
+        "helper" : {
+          "href" : "http://localhost:8085/helpers/1"
+        }
+      }
+    }, {
+      "repairId" : 1,
+      "name" : null,
+      "_links" : {
+        "self" : {
+          "href" : "http://localhost:8085/helpers/2"
+        },
+        "helper" : {
+          "href" : "http://localhost:8085/helpers/2"
+        }
+      }
+    } ]
+  },
+  "_links" : {
+    "self" : {
+      "href" : "http://localhost:8085/helpers{?page,size,sort}",
+      "templated" : true
+    },
+    "profile" : {
+      "href" : "http://localhost:8085/profile/helpers"
+    }
+  },
+  "page" : {
+    "size" : 20,
+    "totalElements" : 2,
+    "totalPages" : 1,
+    "number" : 0
+  }
+} 
+```
 ## Req/Resp
 ```
 curl -X POST localhost:8088/repairs -d '{"stat":"HELPREQUESTED"}' -H 'Content-Type':'application/json'                                                           
@@ -636,6 +727,8 @@ spring:
 ## Deploy/ Pipeline
 ## Circuit Breaker
 ## Autoscale (HPA)
+```
+```
 ## Zero-downtime deploy (Readiness Probe)
 ## Config Map/ Persistence Volume
 ```
