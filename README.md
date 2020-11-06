@@ -728,8 +728,86 @@ spring:
 ## Circuit Breaker
 ## Autoscale (HPA)
 ```
+resources:
+          limits:
+            cpu: 200m
+          requests:
+            cpu: 200m
+
+admin19@Azure:~$ kubectl get hpa -n car
+NAME     REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+repair   Deployment/repair   7%/20%    1         10        4          75s
+
+siege -c100 -t60S -r10 52.226.169.77:8080/repairs
+
+admin19@Azure:~$ kubectl get hpa -n car
+NAME     REFERENCE           TARGETS   MINPODS   MAXPODS   REPLICAS   AGE
+repair   Deployment/repair   96%/20%   1         10        10         2m31s
+
+admin19@Azure:~$ kubectl get deploy -n car
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+display   1/1     1            1           11h
+gateway   1/1     1            1           11h
+receipt   1/1     1            1           11h
+repair    10/10   10           10          6m39s
 ```
 ## Zero-downtime deploy (Readiness Probe)
+```
+siege -c2 -t2S -v --content-type "application/json" 'http://52.226.169.77:8080/repairs'
+** SIEGE 4.0.4
+** Preparing 2 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 200     0.40 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.41 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.37 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+
+Lifting the server siege...
+Transactions:		           6 hits
+Availability:		      100.00 %
+Elapsed time:		        1.43 secs
+Data transferred:	        0.00 MB
+Response time:		        0.39 secs
+Transaction rate:	        4.20 trans/sec
+Throughput:		        0.00 MB/sec
+Concurrency:		        1.62
+Successful transactions:           6
+Failed transactions:	           0
+Longest transaction:	        0.41
+Shortest transaction:	        0.37
+
+kubectl edit deployment.apps/repair -n car
+
+siege -c2 -t2S -v --content-type "application/json" 'http://52.226.169.77:8080/repairs'
+** SIEGE 4.0.4
+** Preparing 2 concurrent users for battle.
+The server is now under siege...
+HTTP/1.1 200     0.37 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.37 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.37 secs:     349 bytes ==> GET  /repairs
+HTTP/1.1 200     0.38 secs:     349 bytes ==> GET  /repairs
+
+Lifting the server siege...
+Transactions:		           8 hits
+Availability:		      100.00 %
+Elapsed time:		        1.64 secs
+Data transferred:	        0.00 MB
+Response time:		        0.38 secs
+Transaction rate:	        4.88 trans/sec
+Throughput:		        0.00 MB/sec
+Concurrency:		        1.84
+Successful transactions:           8
+Failed transactions:	           0
+Longest transaction:	        0.38
+Shortest transaction:	        0.37
+```
+ - 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
 ## Config Map/ Persistence Volume
 ```
 ![image](https://user-images.githubusercontent.com/22365716/98320156-b061a480-2025-11eb-94a2-dbeaa910aed6.png)
@@ -740,3 +818,10 @@ spring:
 ![image](https://user-images.githubusercontent.com/22365716/98320156-b061a480-2025-11eb-94a2-dbeaa910aed6.png)
 ```
 ## Self-healing (Liveness Probe)
+```
+  Normal   Started    4m52s (x2 over 5m22s)  kubelet            Started container repair
+  Normal   Created    4m23s (x3 over 5m23s)  kubelet            Created container repair
+  Warning  Unhealthy  4m23s (x6 over 5m13s)  kubelet            Liveness probe failed: cat: can't open '/tmp/healthy/asdasdas': No such file or directory
+  Normal   Killing    4m23s (x2 over 4m53s)  kubelet            Container repair failed liveness probe, will be restarted
+  Normal   Pulled     12s (x7 over 5m23s)    kubelet            Container image "admin19.azurecr.io/repair:v1" already present on machine
+```
