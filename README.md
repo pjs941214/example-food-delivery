@@ -528,8 +528,9 @@ public class PolicyHandler{
 ![image](https://user-images.githubusercontent.com/22365716/98321156-b35d9480-2027-11eb-8b10-f9a588b48bda.png)
 
 ## CQRS
-```
+
 ![image](https://user-images.githubusercontent.com/22365716/98319143-72638100-2023-11eb-9874-8ff8ff49ac56.png)
+```
  - repair에서 도움 요청을 하였을 때(이벤트), mongoDB에 저장한다.
  - 외주업체에서는 뷰를 통해 도움현황을 조회할 수 있다.
 ```
