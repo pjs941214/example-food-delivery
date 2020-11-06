@@ -753,6 +753,16 @@ repair    10/10   10           10          6m39s
 ```
 ## Zero-downtime deploy (Readiness Probe)
 ```
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /repairs
+            port: 8080
+            scheme: HTTP
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+
 siege -c2 -t2S -v --content-type "application/json" 'http://52.226.169.77:8080/repairs'
 ** SIEGE 4.0.4
 ** Preparing 2 concurrent users for battle.
@@ -809,16 +819,26 @@ Shortest transaction:	        0.37
 ```
  - 배포기간 동안 Availability 가 변화없기 때문에 무정지 재배포가 성공한 것으로 확인됨.
 ## Config Map/ Persistence Volume
-```
 ![image](https://user-images.githubusercontent.com/22365716/98320156-b061a480-2025-11eb-94a2-dbeaa910aed6.png)
 ![image](https://user-images.githubusercontent.com/22365716/98320671-b906aa80-2026-11eb-99c5-d95027f9e052.png)
-```
+
 ## Polyglot
-```
 ![image](https://user-images.githubusercontent.com/22365716/98320156-b061a480-2025-11eb-94a2-dbeaa910aed6.png)
-```
+
 ## Self-healing (Liveness Probe)
 ```
+        livenessProbe:
+          exec:
+            command:
+            - cat
+            - /tmp/healthy/asdasdas
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
+
+
+
   Normal   Started    4m52s (x2 over 5m22s)  kubelet            Started container repair
   Normal   Created    4m23s (x3 over 5m23s)  kubelet            Created container repair
   Warning  Unhealthy  4m23s (x6 over 5m13s)  kubelet            Liveness probe failed: cat: can't open '/tmp/healthy/asdasdas': No such file or directory
